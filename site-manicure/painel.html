@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel da Manicure</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Painel da Manicure 💅</h1>
+    <p>Confira todos os agendamentos do dia</p>
+</header>
+
+<section class="agendamento">
+    <h2>Agendamentos</h2>
+
+    <label for="dataFiltro">Filtrar por data:</label>
+    <input type="date" id="dataFiltro">
+
+    <button id="btnFiltro">Buscar</button>
+
+    <div id="lista-agendamentos" class="lista"></div>
+</section>
+
+<footer>
+    <p>© 2025 - Agenda da Manicure</p>
+</footer>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Serviços</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7e5f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #b4008a;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+            color: #444;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 8px 12px;
+            background: #b4008a;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            background: #8a006b;
+        }
+
+        .lista {
+            margin-top: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .item {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .acoes button {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Cadastrar Serviços & Preços</h1>
+
+    <div class="container">
+        <label>Nome do Serviço:</label>
+        <input type="text" id="servico" placeholder="Ex: Unha Gel">
+
+        <label>Preço (R$):</label>
+        <input type="number" id="preco" placeholder="Ex: 50">
+
+        <button onclick="adicionarServico()">Adicionar Serviço</button>
+    </div>
+
+    <div class="lista" id="listaServicos"></div>
+
+    <script>
+        let servicos = JSON.parse(localStorage.getItem("servicos")) || [];
+
+        function atualizarLista() {
+            const lista = document.getElementById("listaServicos");
+            lista.innerHTML = "";
+
+            servicos.forEach((s, index) => {
+                lista.innerHTML += `
+                <div class='item'>
+                    <span><strong>${s.nome}</strong> - R$ ${s.preco}</span>
+                    <div class='acoes'>
+                        <button onclick="editarServico(${index})">Editar</button>
+                        <button onclick="excluirServico(${index})">Excluir</button>
+                    </div>
+                </div>
+            `;
+            });
+        }
+
+        function adicionarServico() {
+            const nome = document.getElementById("servico").value;
+            const preco = document.getElementById("preco").value;
+
+            if (!nome || !preco) return alert("Preencha tudo!");
+
+            servicos.push({ nome, preco });
+            salvar();
+            atualizarLista();
+        }
+
+        function editarServico(i) {
+            let novoNome = prompt("Novo nome do serviço:", servicos[i].nome);
+            let novoPreco = prompt("Novo preço:", servicos[i].preco);
+
+            if (novoNome && novoPreco) {
+                servicos[i].nome = novoNome;
+                servicos[i].preco = novoPreco;
+                salvar();
+                atualizarLista();
+            }
+        }
+
+        function excluirServico(i) {
+            if (confirm("Tem certeza que deseja excluir este serviço?")) {
+                servicos.splice(i, 1);
+                salvar();
+                atualizarLista();
+            }
+        }
+
+        function salvar() {
+            localStorage.setItem("servicos", JSON.stringify(servicos));
+        }
+
+        atualizarLista();
+    </script>
+
+</body>
+
+</html>
+
+<script src="painel.js"></script>
+</body>
+</html>
+<h3>Bloquear Dia</h3>
+
+<input type="date" id="dataBloqueio">
+<button onclick="bloquearDia()">Bloquear Dia</button>
+<button onclick="desbloquearDia()">Desbloquear Dia</button>
+
+<p id="msgBloqueio"></p>

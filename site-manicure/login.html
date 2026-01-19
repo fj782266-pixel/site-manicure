@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login da Manicure</title>
+
+    <style>
+        body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #ff5fa2, #ffb3d9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+
+
+        .login-box {
+            background: #fff;
+            width: 330px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .login-box img {
+            width: 120px;
+            margin-bottom: 15px;
+        }
+
+        .login-box h2 {
+            color: #d63384;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #d63384;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #d63384;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #b82c71;
+        }
+
+        .erro {
+            margin-top: 12px;
+            color: red;
+            display: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+        <img src="logo.png" alt="Logo">
+        <h2>Login da Manicure</h2>
+
+        <input type="text" id="usuario" placeholder="Usuário">
+        <input type="password" id="senha" placeholder="Senha">
+
+        <button onclick="login()">Entrar</button>
+
+        <div class="erro" id="erroMsg">Usuário ou senha incorretos</div>
+    </div>
+
+    <script>
+        function login() {
+            const user = document.getElementById("usuario").value;
+            const pass = document.getElementById("senha").value;
+
+            const usuarios = [
+                { usuario: "manicure", senha: "1234" },
+                { usuario: "admin felipe", senha: "felipegk@18" }
+            ];
+
+            const valido = usuarios.some(u => u.usuario === user && u.senha === pass);
+
+            if (valido) {
+                window.location.href = "painel.html";
+            } else {
+                document.getElementById("erroMsg").style.display = "block";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
