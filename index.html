@@ -63,9 +63,15 @@ button {
 button:hover {
     background: #b62b6f;
 }
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
 </style>
 
-<!-- FIREBASE -->
+<!-- FIREBASE + FUNÇÕES -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -74,7 +80,7 @@ const firebaseConfig = {
   apiKey: "SUA_API_KEY",
   authDomain: "SEU_AUTH_DOMAIN",
   projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_STORAGE",
+  storageBucket: "SEU_STORAGE_BUCKET",
   messagingSenderId: "SEU_SENDER_ID",
   appId: "SEU_APP_ID"
 };
@@ -82,6 +88,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* ======================
+   SALVAR AGENDAMENTO
+====================== */
 window.salvarAgendamento = async function(event) {
     event.preventDefault();
 
@@ -93,11 +102,11 @@ window.salvarAgendamento = async function(event) {
     const hora = document.getElementById("hora").value;
 
     if (!nome || !telefone || !endereco || !servico || !data || !hora) {
-        alert("Preencha todos os campos");
+        alert("⚠️ Preencha todos os campos");
         return;
     }
 
-    // 🚫 BLOQUEIA DATA + HORA
+    // 🚫 BLOQUEIA DATA + HORA REPETIDA
     const q = query(
         collection(db, "agendamentos"),
         where("data", "==", data),
@@ -122,6 +131,41 @@ window.salvarAgendamento = async function(event) {
 
     alert("✅ Agendamento realizado com sucesso!");
     event.target.reset();
+};
+
+/* ======================
+   LISTAR AGENDAMENTOS
+====================== */
+window.listarAgendamentos = async function () {
+    const lista = document.getElementById("listaAgendamentos");
+    lista.innerHTML = "Carregando...";
+
+    const snapshot = await getDocs(collection(db, "agendamentos"));
+
+    if (snapshot.empty) {
+        lista.innerHTML = "<li>Nenhum agendamento encontrado</li>";
+        return;
+    }
+
+    lista.innerHTML = "";
+
+    snapshot.forEach(doc => {
+        const a = doc.data();
+
+        const item = document.createElement("li");
+        item.style.marginBottom = "10px";
+        item.style.borderBottom = "1px solid #ccc";
+        item.style.paddingBottom = "8px";
+
+        item.innerHTML = `
+          <strong>${a.nome}</strong><br>
+          📞 ${a.telefone}<br>
+          💅 ${a.servico}<br>
+          📅 ${a.data} ⏰ ${a.hora}
+        `;
+
+        lista.appendChild(item);
+    });
 };
 </script>
 </head>
@@ -158,6 +202,15 @@ window.salvarAgendamento = async function(event) {
 
     <button type="submit">Agendar</button>
 </form>
+
+<hr style="margin:20px 0">
+
+<button onclick="listarAgendamentos()">
+  Ver agendamentos 📋
+</button>
+
+<ul id="listaAgendamentos"></ul>
+
 </div>
 
 </body>
