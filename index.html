@@ -1,163 +1,163 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Agendar Serviço 💅</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Agendar Serviço 💅</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ffe4f2, #f7b2d9);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #ffe4f2, #f7b2d9);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .container {
-            background: #fff;
-            padding: 30px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
+.container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
 
-        h1 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #d63384;
-        }
+h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #d63384;
+}
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
 
-        label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #555;
-        }
+label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+}
 
-        input, select, button {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-            width: 100%;
-        }
+input, select, button {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    width: 100%;
+}
 
-        input:focus, select:focus {
-            outline: none;
-            border-color: #d63384;
-        }
+button {
+    background: #d63384;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        button {
-            background: #d63384;
-            color: #fff;
-            border: none;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+button:hover {
+    background: #b62b6f;
+}
+</style>
 
-        button:hover {
-            background: #b62b6f;
-        }
-    </style>
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <!-- FUNÇÃO ÚNICA (COM BLOQUEIO DE HORÁRIO) -->
-    <script>
-        function salvarAgendamento(event) {
-            event.preventDefault();
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_STORAGE",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId: "SEU_APP_ID"
+};
 
-            const nome = document.querySelector('input[placeholder="Seu nome"]').value;
-            const telefone = document.querySelector('input[type="tel"]').value;
-            const endereco = document.querySelector('input[placeholder="Rua, Número, Bairro"]').value;
-            const servico = document.querySelector('select').value;
-            const data = document.querySelector('input[type="date"]').value;
-            const hora = document.querySelector('input[type="time"]').value;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-            if (!nome || !telefone || !endereco || !servico || !data || !hora) {
-                alert("Preencha todos os campos");
-                return;
-            }
+window.salvarAgendamento = async function(event) {
+    event.preventDefault();
 
-            let agendamentos = JSON.parse(localStorage.getItem("agendamentos")) || [];
+    const nome = document.getElementById("nome").value;
+    const telefone = document.getElementById("telefone").value;
+    const endereco = document.getElementById("endereco").value;
+    const servico = document.getElementById("servico").value;
+    const data = document.getElementById("data").value;
+    const hora = document.getElementById("hora").value;
 
-            // 🚫 BLOQUEIA MESMO DIA + HORÁRIO
-            const conflito = agendamentos.some(a => a.data === data && a.hora === hora);
-            if (conflito) {
-                alert("❌ Este horário já está ocupado. Escolha outro.");
-                return;
-            }
+    if (!nome || !telefone || !endereco || !servico || !data || !hora) {
+        alert("Preencha todos os campos");
+        return;
+    }
 
-            agendamentos.push({
-                nome,
-                telefone,
-                endereco,
-                servico,
-                data,
-                hora
-            });
+    // 🚫 BLOQUEIA DATA + HORA
+    const q = query(
+        collection(db, "agendamentos"),
+        where("data", "==", data),
+        where("hora", "==", hora)
+    );
 
-            localStorage.setItem("agendamentos", JSON.stringify(agendamentos));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+        alert("❌ Esse horário já está ocupado!");
+        return;
+    }
 
-            alert("✅ Agendamento realizado com sucesso!");
-            event.target.reset();
-        }
-    </script>
+    await addDoc(collection(db, "agendamentos"), {
+        nome,
+        telefone,
+        endereco,
+        servico,
+        data,
+        hora,
+        criadoEm: new Date()
+    });
+
+    alert("✅ Agendamento realizado com sucesso!");
+    event.target.reset();
+};
+</script>
 </head>
 
 <body>
 
 <div class="container">
-    <h1>Agendar Serviço 💅</h1>
+<h1>Agendar Serviço 💅</h1>
 
-    <form onsubmit="salvarAgendamento(event)">
-        <div>
-            <label>Nome</label>
-            <input type="text" placeholder="Seu nome">
-        </div>
+<form onsubmit="salvarAgendamento(event)">
+    <label>Nome</label>
+    <input id="nome" type="text">
 
-        <div>
-            <label>Telefone</label>
-            <input type="tel" placeholder="(00) 00000-0000">
-        </div>
+    <label>Telefone</label>
+    <input id="telefone" type="tel">
 
-        <div>
-            <label>Endereço</label>
-            <input type="text" placeholder="Rua, Número, Bairro">
-        </div>
+    <label>Endereço</label>
+    <input id="endereco" type="text">
 
-        <div>
-            <label>Serviço</label>
-            <select>
-                <option value="">Selecione</option>
-                <option>Manicure</option>
-                <option>Pedicure</option>
-                <option>Alongamento</option>
-                <option>Manicure + Pedicure</option>
-            </select>
-        </div>
+    <label>Serviço</label>
+    <select id="servico">
+        <option value="">Selecione</option>
+        <option>Manicure</option>
+        <option>Pedicure</option>
+        <option>Alongamento</option>
+        <option>Manicure + Pedicure</option>
+    </select>
 
-        <div>
-            <label>Data</label>
-            <input type="date">
-        </div>
+    <label>Data</label>
+    <input id="data" type="date">
 
-        <div>
-            <label>Hora</label>
-            <input type="time">
-        </div>
+    <label>Hora</label>
+    <input id="hora" type="time">
 
-        <button type="submit">Agendar</button>
-    </form>
+    <button type="submit">Agendar</button>
+</form>
 </div>
 
 </body>
