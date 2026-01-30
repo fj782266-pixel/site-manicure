@@ -2,37 +2,121 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <title>Agendar Serviço 💅</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento de Serviços</title>
-    <link rel="stylesheet" href="estilo.css">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ffe4f2, #f7b2d9);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #d63384;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #d63384;
+        }
+
+        button {
+            background: #d63384;
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #b62b6f;
+        }
+    </style>
 </head>
 
 <body>
 
-<h1>Agendar Serviço 💅</h1>
-
 <div class="container">
-    <label>Nome:</label>
-    <input type="text" id="nomeCliente" placeholder="Seu nome">
+    <h1>Agendar Serviço 💅</h1>
 
-    <label>Telefone:</label>
-    <input type="text" id="telefoneCliente" placeholder="(00) 00000-0000">
+    <form>
+        <div>
+            <label>Nome</label>
+            <input type="text" placeholder="Seu nome">
+        </div>
 
-    <label>Endereço:</label>
-    <input type="text" id="enderecoCliente" placeholder="Rua, Número, Bairro">
+        <div>
+            <label>Telefone</label>
+            <input type="tel" placeholder="(00) 00000-0000">
+        </div>
 
-    <label>Serviço:</label>
-    <select id="servicoEscolhido"></select>
+        <div>
+            <label>Endereço</label>
+            <input type="text" placeholder="Rua, Número, Bairro">
+        </div>
 
-    <label>Data:</label>
-    <input type="date" id="dataAgendamento">
+        <div>
+            <label>Serviço</label>
+            <select>
+                <option>Selecione</option>
+                <option>Manicure</option>
+                <option>Pedicure</option>
+                <option>Alongamento</option>
+                <option>Manicure + Pedicure</option>
+            </select>
+        </div>
 
-    <label>Hora:</label>
-    <input type="time" id="horaAgendamento">
+        <div>
+            <label>Data</label>
+            <input type="date">
+        </div>
 
-    <button onclick="agendarServico()">Agendar</button>
+        <div>
+            <label>Hora</label>
+            <input type="time">
+        </div>
+
+        <button type="submit">Agendar</button>
+    </form>
 </div>
 
-<script src="script.js"></script>
 </body>
 </html>
