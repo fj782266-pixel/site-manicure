@@ -118,6 +118,36 @@
     </form>
 </div>
 
+<!-- FUNÇÃO ADICIONADA (SEM ALTERAR O RESTO) -->
+<script>
+function salvarAgendamento(event) {
+    event.preventDefault();
+
+    const nome = document.querySelector('input[placeholder="Seu nome"]').value;
+    const telefone = document.querySelector('input[placeholder="(00) 00000-0000"]').value;
+    const endereco = document.querySelector('input[placeholder="Rua, Número, Bairro"]').value;
+    const servico = document.querySelector('select').value;
+    const data = document.querySelector('input[type="date"]').value;
+    const hora = document.querySelector('input[type="time"]').value;
+
+    const agendamento = {
+        nome,
+        telefone,
+        endereco,
+        servico,
+        data,
+        hora
+    };
+
+    let agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
+    agendamentos.push(agendamento);
+    localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
+
+    alert("Agendamento realizado com sucesso 💅");
+
+    event.target.reset();
+}
+</script>
+
 </body>
 </html>
-
