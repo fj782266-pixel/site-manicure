@@ -70,6 +70,48 @@
             background: #b62b6f;
         }
     </style>
+
+    <!-- FUNÇÃO ÚNICA (COM BLOQUEIO DE HORÁRIO) -->
+    <script>
+        function salvarAgendamento(event) {
+            event.preventDefault();
+
+            const nome = document.querySelector('input[placeholder="Seu nome"]').value;
+            const telefone = document.querySelector('input[type="tel"]').value;
+            const endereco = document.querySelector('input[placeholder="Rua, Número, Bairro"]').value;
+            const servico = document.querySelector('select').value;
+            const data = document.querySelector('input[type="date"]').value;
+            const hora = document.querySelector('input[type="time"]').value;
+
+            if (!nome || !telefone || !endereco || !servico || !data || !hora) {
+                alert("Preencha todos os campos");
+                return;
+            }
+
+            let agendamentos = JSON.parse(localStorage.getItem("agendamentos")) || [];
+
+            // 🚫 BLOQUEIA MESMO DIA + HORÁRIO
+            const conflito = agendamentos.some(a => a.data === data && a.hora === hora);
+            if (conflito) {
+                alert("❌ Este horário já está ocupado. Escolha outro.");
+                return;
+            }
+
+            agendamentos.push({
+                nome,
+                telefone,
+                endereco,
+                servico,
+                data,
+                hora
+            });
+
+            localStorage.setItem("agendamentos", JSON.stringify(agendamentos));
+
+            alert("✅ Agendamento realizado com sucesso!");
+            event.target.reset();
+        }
+    </script>
 </head>
 
 <body>
@@ -96,7 +138,7 @@
         <div>
             <label>Serviço</label>
             <select>
-                <option>Selecione</option>
+                <option value="">Selecione</option>
                 <option>Manicure</option>
                 <option>Pedicure</option>
                 <option>Alongamento</option>
@@ -117,37 +159,6 @@
         <button type="submit">Agendar</button>
     </form>
 </div>
-
-<!-- FUNÇÃO ADICIONADA (SEM ALTERAR O RESTO) -->
-<script>
-function salvarAgendamento(event) {
-    event.preventDefault();
-
-    const nome = document.querySelector('input[placeholder="Seu nome"]').value;
-    const telefone = document.querySelector('input[placeholder="(00) 00000-0000"]').value;
-    const endereco = document.querySelector('input[placeholder="Rua, Número, Bairro"]').value;
-    const servico = document.querySelector('select').value;
-    const data = document.querySelector('input[type="date"]').value;
-    const hora = document.querySelector('input[type="time"]').value;
-
-    const agendamento = {
-        nome,
-        telefone,
-        endereco,
-        servico,
-        data,
-        hora
-    };
-
-    let agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
-    agendamentos.push(agendamento);
-    localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
-
-    alert("Agendamento realizado com sucesso 💅");
-
-    event.target.reset();
-}
-</script>
 
 </body>
 </html>
