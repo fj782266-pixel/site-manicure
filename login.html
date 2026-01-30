@@ -90,26 +90,31 @@
         <div class="erro" id="erroMsg">Usuário ou senha incorretos</div>
     </div>
 
-    <script>
-        function login() {
-            const user = document.getElementById("usuario").value;
-            const pass = document.getElementById("senha").value;
+  <script>
+function login() {
+    const user = document.getElementById("usuario").value;
+    const pass = document.getElementById("senha").value;
 
-            const usuarios = [
-                { usuario: "manicure", senha: "1234" },
-                { usuario: "admin felipe", senha: "felipegk@18" }
-            ];
+    const usuarios = [
+        { usuario: "manicure", senha: "1234" },
+        { usuario: "admin felipe", senha: "felipegk@18" }
+    ];
 
-            const valido = usuarios.some(u => u.usuario === user && u.senha === pass);
+    const valido = usuarios.some(u => u.usuario === user && u.senha === pass);
 
-            if (valido) {
-                window.location.href = "painel.html";
-            } else {
-                document.getElementById("erroMsg").style.display = "block";
-            }
-        }
-    </script>
+    if (valido) {
+        // 🔐 MARCA COMO LOGADO
+        localStorage.setItem("logado", "true");
+        localStorage.setItem("usuario", user);
 
+        // 👉 VAI PARA O PAINEL
+        window.location.href = "painel.html";
+    } else {
+        document.getElementById("erroMsg").style.display = "block";
+    }
+}
+</script>
 </body>
+
 
 </html>
