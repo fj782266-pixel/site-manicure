@@ -72,10 +72,8 @@
         }
 
         .item {
-            padding: 8px;
+            padding: 10px;
             border-bottom: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
         }
     </style>
 </head>
@@ -94,7 +92,7 @@
 
     <label>Filtrar por data:</label>
     <input type="date" id="dataFiltro">
-    <button id="btnFiltro">Buscar</button>
+    <button onclick="filtrarAgendamentos()">Buscar</button>
 
     <div id="lista-agendamentos" class="lista"></div>
 </section>
@@ -132,7 +130,48 @@
         window.location.href = "login.html";
     }
 
-    // SERVIÇOS
+    /* =======================
+       AGENDAMENTOS
+    ======================== */
+    let agendamentos = JSON.parse(localStorage.getItem("agendamentos")) || [];
+
+    function renderizarAgendamentos(lista) {
+        const container = document.getElementById("lista-agendamentos");
+        container.innerHTML = "";
+
+        if (lista.length === 0) {
+            container.innerHTML = "<p>Nenhum agendamento encontrado.</p>";
+            return;
+        }
+
+        lista.forEach(a => {
+            container.innerHTML += `
+                <div class="item">
+                    <strong>${a.nome}</strong><br>
+                    📞 ${a.telefone}<br>
+                    📍 ${a.endereco}<br>
+                    💅 ${a.servico}<br>
+                    📅 ${a.data} ⏰ ${a.hora}
+                </div>
+            `;
+        });
+    }
+
+    function filtrarAgendamentos() {
+        const data = document.getElementById("dataFiltro").value;
+        if (!data) {
+            renderizarAgendamentos(agendamentos);
+            return;
+        }
+        const filtrados = agendamentos.filter(a => a.data === data);
+        renderizarAgendamentos(filtrados);
+    }
+
+    renderizarAgendamentos(agendamentos);
+
+    /* =======================
+       SERVIÇOS
+    ======================== */
     let servicos = JSON.parse(localStorage.getItem("servicos")) || [];
 
     function atualizarLista() {
@@ -142,18 +181,18 @@
         servicos.forEach((s, i) => {
             lista.innerHTML += `
                 <div class="item">
-                    <span>${s.nome} - R$ ${s.preco}</span>
+                    ${s.nome} - R$ ${s.preco}
                     <button onclick="excluirServico(${i})">Excluir</button>
                 </div>`;
         });
     }
 
     function adicionarServico() {
-        const nome = servico.value;
-        const preco = preco.value;
-        if (!nome || !preco) return alert("Preencha tudo");
+        const nome = document.getElementById("servico").value;
+        const precoValor = document.getElementById("preco").value;
+        if (!nome || !precoValor) return alert("Preencha tudo");
 
-        servicos.push({ nome, preco });
+        servicos.push({ nome, preco: precoValor });
         localStorage.setItem("servicos", JSON.stringify(servicos));
         atualizarLista();
     }
