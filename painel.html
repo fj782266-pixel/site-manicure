@@ -112,28 +112,21 @@
     <div class="lista" id="listaServicos"></div>
 </section>
 
-<!-- BLOQUEIO DE DIA -->
-<section>
-    <h2>Bloquear Dia</h2>
-
-    <input type="date" id="dataBloqueio">
-    <button onclick="bloquearDia()">Bloquear</button>
-    <button onclick="desbloquearDia()">Desbloquear</button>
-
-    <p id="msgBloqueio"></p>
-</section>
-
 <script>
-    // LOGOUT
+    /* =======================
+       LOGOUT
+    ======================== */
     function logout() {
         localStorage.removeItem("logado");
         window.location.href = "login.html";
     }
 
     /* =======================
-       AGENDAMENTOS
+       AGENDAMENTOS (CORRIGIDO)
     ======================== */
-    let agendamentos = JSON.parse(localStorage.getItem("agendamentos")) || [];
+    function obterAgendamentos() {
+        return JSON.parse(localStorage.getItem("agendamentos")) || [];
+    }
 
     function renderizarAgendamentos(lista) {
         const container = document.getElementById("lista-agendamentos");
@@ -159,15 +152,19 @@
 
     function filtrarAgendamentos() {
         const data = document.getElementById("dataFiltro").value;
+        const agendamentos = obterAgendamentos();
+
         if (!data) {
             renderizarAgendamentos(agendamentos);
             return;
         }
+
         const filtrados = agendamentos.filter(a => a.data === data);
         renderizarAgendamentos(filtrados);
     }
 
-    renderizarAgendamentos(agendamentos);
+    // INICIAL
+    renderizarAgendamentos(obterAgendamentos());
 
     /* =======================
        SERVIÇOS
