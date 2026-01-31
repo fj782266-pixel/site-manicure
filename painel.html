@@ -1,206 +1,105 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel da Manicure</title>
-
-    <!-- BLOQUEIO DE ACESSO -->
-    <script>
-        if (localStorage.getItem("logado") !== "true") {
-            window.location.href = "login.html";
-        }
-    </script>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f7e5f8;
-            margin: 0;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            color: #b4008a;
-            margin-bottom: 30px;
-        }
-
-        section {
-            max-width: 800px;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        h2 {
-            color: #b4008a;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            padding: 8px 12px;
-            background: #b4008a;
-            border: none;
-            color: #fff;
-            font-size: 14px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background: #8a006b;
-        }
-
-        .lista {
-            margin-top: 15px;
-        }
-
-        .item {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login da Manicure</title>
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #ff5fa2, #ffb3d9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+.login-box {
+    background: #fff;
+    width: 330px;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    text-align: center;
+}
+.login-box img { width: 120px; margin-bottom: 15px; }
+.login-box h2 { color: #d63384; margin-bottom: 20px; }
+input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
+input:focus { outline: none; border-color: #d63384; }
+button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: #d63384; color: white; font-size: 15px; font-weight: bold; cursor: pointer; }
+button:hover { background: #b82c71; }
+.erro { margin-top: 12px; color: red; display: none; font-size: 14px; }
+</style>
 </head>
-
 <body>
 
-<header>
-    <h1>Painel da Manicure 💅</h1>
-    <p>Área administrativa</p>
-    <button onclick="logout()">Sair</button>
-</header>
+<div class="login-box">
+    <img src="logo.png" alt="Logo">
+    <h2>Login da Manicure</h2>
+    <input type="text" id="usuario" placeholder="Usuário">
+    <input type="password" id="senha" placeholder="Senha">
+    <button id="btnLogin">Entrar</button>
+    <div class="erro" id="erroMsg">Usuário ou senha incorretos</div>
+</div>
 
-<!-- AGENDAMENTOS -->
-<section>
-    <h2>Agendamentos</h2>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <label>Filtrar por data:</label>
-    <input type="date" id="dataFiltro">
-    <button onclick="filtrarAgendamentos()">Buscar</button>
+// CONFIGURAÇÃO DO FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyCkt4DXVTjBkTIKH36Rl3xV7p3IX_5Bf0w",
+  authDomain: "agenda-manicure-d4904.firebaseapp.com",
+  projectId: "agenda-manicure-d4904",
+  storageBucket: "agenda-manicure-d4904.firebasestorage.app",
+  messagingSenderId: "1041100320286",
+  appId: "1:1041100320286:web:8c5d938947d2cbacb3c80f"
+};
 
-    <div id="lista-agendamentos" class="lista"></div>
-</section>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-<!-- SERVIÇOS -->
-<section>
-    <h2>Cadastrar Serviços & Preços</h2>
+// FUNÇÃO DE LOGIN
+async function login() {
+    const user = document.getElementById("usuario").value;
+    const pass = document.getElementById("senha").value;
+    const erro = document.getElementById("erroMsg");
 
-    <label>Nome do serviço</label>
-    <input type="text" id="servico">
+    erro.style.display = "none";
 
-    <label>Preço (R$)</label>
-    <input type="number" id="preco">
-
-    <button onclick="adicionarServico()">Adicionar</button>
-
-    <div class="lista" id="listaServicos"></div>
-</section>
-
-<script>
-    /* =======================
-       LOGOUT
-    ======================== */
-    function logout() {
-        localStorage.removeItem("logado");
-        window.location.href = "login.html";
+    if (!user || !pass) {
+        erro.innerText = "Preencha todos os campos";
+        erro.style.display = "block";
+        return;
     }
 
-    /* =======================
-       AGENDAMENTOS (CORRIGIDO)
-    ======================== */
-    function obterAgendamentos() {
-        return JSON.parse(localStorage.getItem("agendamentos")) || [];
-    }
+    try {
+        const q = query(
+            collection(db, "usuarios"),
+            where("usuario", "==", user),
+            where("senha", "==", pass)
+        );
 
-    function renderizarAgendamentos(lista) {
-        const container = document.getElementById("lista-agendamentos");
-        container.innerHTML = "";
+        const snapshot = await getDocs(q);
 
-        if (lista.length === 0) {
-            container.innerHTML = "<p>Nenhum agendamento encontrado.</p>";
-            return;
+        if (!snapshot.empty) {
+            localStorage.setItem("logado", "true");
+            localStorage.setItem("usuario", user);
+            window.location.href = "painel.html";
+        } else {
+            erro.innerText = "Usuário ou senha incorretos";
+            erro.style.display = "block";
         }
 
-        lista.forEach(a => {
-            container.innerHTML += `
-                <div class="item">
-                    <strong>${a.nome}</strong><br>
-                    📞 ${a.telefone}<br>
-                    📍 ${a.endereco}<br>
-                    💅 ${a.servico}<br>
-                    📅 ${a.data} ⏰ ${a.hora}
-                </div>
-            `;
-        });
+    } catch (e) {
+        console.error("Erro Firestore:", e);
+        erro.innerText = "Erro ao conectar com o banco";
+        erro.style.display = "block";
     }
+}
 
-    function filtrarAgendamentos() {
-        const data = document.getElementById("dataFiltro").value;
-        const agendamentos = obterAgendamentos();
-
-        if (!data) {
-            renderizarAgendamentos(agendamentos);
-            return;
-        }
-
-        const filtrados = agendamentos.filter(a => a.data === data);
-        renderizarAgendamentos(filtrados);
-    }
-
-    // INICIAL
-    renderizarAgendamentos(obterAgendamentos());
-
-    /* =======================
-       SERVIÇOS
-    ======================== */
-    let servicos = JSON.parse(localStorage.getItem("servicos")) || [];
-
-    function atualizarLista() {
-        const lista = document.getElementById("listaServicos");
-        lista.innerHTML = "";
-
-        servicos.forEach((s, i) => {
-            lista.innerHTML += `
-                <div class="item">
-                    ${s.nome} - R$ ${s.preco}
-                    <button onclick="excluirServico(${i})">Excluir</button>
-                </div>`;
-        });
-    }
-
-    function adicionarServico() {
-        const nome = document.getElementById("servico").value;
-        const precoValor = document.getElementById("preco").value;
-        if (!nome || !precoValor) return alert("Preencha tudo");
-
-        servicos.push({ nome, preco: precoValor });
-        localStorage.setItem("servicos", JSON.stringify(servicos));
-        atualizarLista();
-    }
-
-    function excluirServico(i) {
-        servicos.splice(i, 1);
-        localStorage.setItem("servicos", JSON.stringify(servicos));
-        atualizarLista();
-    }
-
-    atualizarLista();
+// BOTÃO CHAMA FUNÇÃO
+document.getElementById("btnLogin").addEventListener("click", login);
 </script>
 
 </body>
