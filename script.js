@@ -1,56 +1,59 @@
-// Carrega os agendamentos salvos
-let agendamentos = JSON.parse(localStorage.getItem("agendamentos")) || [];
+// ====== FIREBASE ======
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-function atualizarHorarios() {
-    let select = document.getElementById("horario");
-    let data = document.getElementById("data").value;
+// ⚠️ COLOQUE SUAS CHAVES AQUI
+const firebaseConfig = {
+  apiKey: "AIzaSyCkt4DXVTjBkTIKH36Rl3xV7p3IX_5Bf0w",
+  authDomain: "agenda-manicure-d4904.firebaseapp.com",
+  projectId: "agenda-manicure-d4904",
+  storageBucket: "agenda-manicure-d4904.firebasestorage.app",
+  messagingSenderId: "1041100320286",
+  appId: "1:1041100320286:web:8c5d938947d2cbacb3c80f"
+};
 
-    // Libera todos antes de bloquear novamente
-    for (let option of select.options) {
-        option.disabled = false;
-    }
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    // Se não tiver data selecionada, para aqui
-    if (!data) return;
+// ====== PEGAR UID DA MANICURE DA URL ======
+const params = new URLSearchParams(window.location.search);
+const manicureUID = params.get("manicure");
 
-    // Verifica horários ocupados nessa data
-    let ocupados = agendamentos.filter(a => a.data === data).map(a => a.horario);
-
-    // Desabilita horários ocupados
-    for (let option of select.options) {
-        if (ocupados.includes(option.value)) {
-            option.disabled = true;
-        }
-    }
+if (!manicureUID) {
+  alert("Link inválido. Manicure não encontrada.");
+  throw new Error("UID da manicure não encontrado");
 }
 
-// Atualiza horários sempre que a data mudar
-document.getElementById("data").addEventListener("change", atualizarHorarios);
+// ====== FORMULÁRIO ======
+const form = document.getElementById("form-agendamento");
 
-// Processa o agendamento
-document.getElementById("form-agenda").addEventListener("submit", function (e) {
-    e.preventDefault();
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    let nome = document.getElementById("nome").value;
-    let data = document.getElementById("data").value;
-    let horario = document.getElementById("hora").value;
+  const nome = document.getElementById("nome").value;
+  const telefone = document.getElementById("telefone").value;
+  const data = document.getElementById("data").value;
+  const hora = document.getElementById("hora").value;
+  const servico = document.getElementById("servico").value;
 
-    // Confere se horário está ocupado
-    let ocupado = agendamentos.some(a => a.data === data && a.horario === horario);
+  try {
+    await addDoc(
+      collection(db, "manicures", manicureUID, "agendamentos"),
+      {
+        nome,
+        telefone,
+        data,
+        hora,
+        servico,
+        criadoEm: new Date()
+      }
+    );
 
-    if (ocupado) {
-        document.getElementById("mensagem").innerText = "⛔ Este horário já está ocupado!";
-        document.getElementById("mensagem").style.color = "red";
-        return;
-    }
+    alert("Agendamento realizado com sucesso 💅✨");
+    form.reset();
 
-    // Salva o agendamento
-    agendamentos.push({ nome, data, horario, status: "pendente" });
-    localStorage.setItem("agendamentos", JSON.stringify(agendamentos));
-
-    document.getElementById("mensagem").innerText =
-        `✨ Agendamento confirmado para ${nome} em ${data} às ${horario}!`;
-    document.getElementById("mensagem").style.color = "green";
-
-    atualizarHorarios(); // Atualiza horários ocupados automaticamente
+  } catch (error) {
+    console.error("Erro ao agendar:", error);
+    alert("Erro ao realizar agendamento");
+  }
 });
