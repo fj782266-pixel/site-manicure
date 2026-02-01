@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Agendar Horário 💅</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+  <h2>Agendar Horário</h2>
+
+  <form id="form-agendamento">
+    <input type="text" id="nome" placeholder="Seu nome" required><br><br>
+    <input type="tel" id="telefone" placeholder="WhatsApp" required><br><br>
+    <input type="date" id="data" required><br><br>
+    <input type="time" id="hora" required><br><br>
+
+    <select id="servico" required>
+      <option value="">Selecione o serviço</option>
+      <option value="Manicure">Manicure</option>
+      <option value="Pedicure">Pedicure</option>
+      <option value="Alongamento">Alongamento</option>
+    </select><br><br>
+
+    <button type="submit">Confirmar Agendamento</button>
+  </form>
+
+  <!-- IMPORTANTE -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>
